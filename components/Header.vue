@@ -1,9 +1,35 @@
 <template>
-  <div class="header">
-    <img class="logo" src="https://www.verifarma.com/wp-content/uploads/2020/09/icon-verifarma-1.svg" alt="Verifarma Logo" />
- 
-    <span v-if="isLoggedIn" class="username">¡Hola, {{ username }}!</span>
-    <q-btn v-if="!isLoggedIn" label="Ingresa o Crea tu Cuenta" flat class="header-btn" />
+  <!-- Accesibilidad: role banner para identificar la cabecera de la página
+   -->
+  <div class="header" role="banner">
+
+    <a href="/" aria-label="Ir a la página principal">
+      <img 
+        class="logo" 
+        src="https://www.verifarma.com/wp-content/uploads/2020/09/icon-verifarma-1.svg" 
+        alt="Logo de Verifarma Play" 
+      />
+    </a>
+
+    <!-- Accesibilidad: el saludo más accesible
+    -->
+    <span 
+      v-if="isLoggedIn" 
+      class="username" 
+      role="status" 
+      aria-live="polite">
+      ¡Hola, {{ username }}!
+    </span>
+
+    <!-- Accesibilidad: el botón más accesible
+    -->
+    <q-btn 
+      v-if="!isLoggedIn" 
+      label="Ingresa o Crea tu Cuenta" 
+      flat 
+      class="header-btn" 
+      aria-label="Abrir formulario para ingresar o crear una cuenta" 
+    />
     
   </div>
 </template>

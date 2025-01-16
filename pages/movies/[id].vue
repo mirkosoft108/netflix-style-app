@@ -1,14 +1,23 @@
 <template>
-  <q-page class="movie-details-page">
+  <!--Accesibilidad: aria-labelledby para identificar el título de la película
+  -->
+  <q-page class="movie-details-page" role="main" aria-labelledby="movie-title">
+
     <Header />
 
     <div class="movie-details">
-    
-      <div class="movie-poster" :style="{ backgroundImage: movie.Poster ? `url(${movie.Poster})` : 'url(default-placeholder.jpg)' }"
-      ></div>
+      
+      <!--Accesibilidad: aria-label para identificar el póster de la película
+      -->
+      <div 
+        class="movie-poster" 
+        :style="{ backgroundImage: movie.Poster ? `url(${movie.Poster})` : 'url(default-placeholder.jpg)' }" 
+        :aria-label="`Póster de la película ${movie.Title}`" 
+        role="img">
+      </div>
 
       <div class="movie-info">
-        <h1 class="movie-title">{{ movie.Title }}</h1>
+        <h1 class="movie-title" id="movie-title">{{ movie.Title }}</h1>
         <div class="movie-meta">
           <span class="movie-year">{{ movie.Year }}</span>
           <span class="movie-runtime">{{ movie.Runtime }}</span>
@@ -17,28 +26,42 @@
 
         <p class="movie-plot">{{ movie.Plot }}</p>
 
+        <!--Accesibilidad: role="list" para identificar la lista de calificaciones
+        -->
         <div class="movie-ratings">
-          <div v-for="(rating, index) in movie.Ratings" :key="index" class="movie-rating">
+          <div 
+            v-for="(rating, index) in movie.Ratings" 
+            :key="index" 
+            class="movie-rating" 
+            :aria-label="`Calificación de ${rating.Source}: ${rating.Value}`" 
+            role="listitem">
             <strong>{{ rating.Source }}:</strong> <span>{{ rating.Value }}</span>
           </div>
         </div>
 
-        <div class="movie-extra">
+        <!-- Accesibilidad: role="region" para identificar la sección de información adicional de la película
+        -->
+        <div class="movie-extra" role="region" aria-labelledby="extra-info-title">
+          <h2 id="extra-info-title" class="visually-hidden">Información adicional de la película</h2>
           <p><strong>Director:</strong> {{ movie.Director }}</p>
-          <p><strong>Actors:</strong> {{ movie.Actors }}</p>
-          <p><strong>Language:</strong> {{ movie.Language }}</p>
-          <p><strong>Released:</strong> {{ movie.Released }}</p>
-          <p><strong>Awards:</strong> {{ movie.Awards }}</p>
+          <p><strong>Actores:</strong> {{ movie.Actors }}</p>
+          <p><strong>Idioma:</strong> {{ movie.Language }}</p>
+          <p><strong>Estreno:</strong> {{ movie.Released }}</p>
+          <p><strong>Premios:</strong> {{ movie.Awards }}</p>
         </div>
 
+        <!--Accesibilidad: aria-label para identificar el botón de volver
+        -->
         <q-btn
           flat
           dense
           icon="arrow_back"
           label="Volver"
+          aria-label="Volver a la página anterior"
           class="back-btn"
           @click="goBack"
         />
+
       </div>
     </div>
   </q-page>
@@ -107,7 +130,7 @@ const goBack = () => {
 .movie-details {
   display: flex;
   gap: 16px;
-  margin-top: 32px;
+  margin-top: 64px;
 }
 
 .movie-poster {
@@ -180,6 +203,16 @@ const goBack = () => {
   .movie-info {
     width: 100%;
   }
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 </style>
   

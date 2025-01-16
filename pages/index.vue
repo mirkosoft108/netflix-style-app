@@ -1,11 +1,51 @@
 <template>
-  <q-page class="login-layout">
+  <!--
+    se añade el atributo aria-hidden al q-page para indicar que el contenido no es visible para los lectores de pantalla
+  -->
+  <q-page class="login-layout" aria-hidden="true">
     <div class="login-content">
-      <img class="login-logo" src="https://www.verifarma.com/wp-content/uploads/2020/09/icon-verifarma-1.svg" alt="Verifarma Logo" />
+      <img 
+        class="login-logo" 
+        src="https://www.verifarma.com/wp-content/uploads/2020/09/icon-verifarma-1.svg" 
+        alt="Logo de Verifarma Play" 
+      />
+      
       <h1 class="login-title">Bienvenido a Verifarma Play</h1>
-      <q-input v-model="email" label="Correo Electrónico" outlined dense class="login-input" />
-      <q-input v-model="password" label="Contraseña" type="password" outlined dense class="login-input" />
-      <q-btn label="Iniciar Sesión" color="dark" unelevated class="login-button" @click="login" />
+      
+      <!-- 
+      se añade, por cuestiones de accesibilidad, el atributo aria-label al input de correo electrónico
+      -->
+      <q-input 
+        v-model="email" 
+        label="Correo Electrónico" 
+        aria-label="Correo Electrónico" 
+        outlined 
+        dense 
+        class="login-input" 
+      />
+      <!--
+        se añade, por cuestiones de accesibilidad, el atributo aria-label al input de contraseña
+      -->
+      <q-input 
+        v-model="password" 
+        label="Contraseña" 
+        aria-label="Contraseña" 
+        type="password" 
+        outlined 
+        dense 
+        class="login-input" 
+      />
+      <!--
+        se añade, por cuestiones de accesibilidad, el atributo aria-label al botón de iniciar sesión
+      -->
+      <q-btn 
+        label="Iniciar Sesión" 
+        aria-label="Botón para iniciar sesión" 
+        color="dark" 
+        unelevated 
+        class="login-button" 
+        @click="login" 
+      />
     </div>
   </q-page>
 </template>
@@ -38,7 +78,7 @@
 .login-content {
   max-width: 400px;
   width: 90%;
-  background: rgba(50, 48, 50, 0.9);
+  background: rgba(50, 48, 50, 0.95);
   padding: 1rem;
   border-radius: 8px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);

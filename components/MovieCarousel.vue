@@ -1,13 +1,32 @@
 <template>
-  <div class="custom-carousel">
+  <!-- Accesibilidad: se añade el atributo role="region" con un aria-label para indicar que es un carrusel de películas
+   -->
+  <!-- <button 
+    class="carousel-button left" 
+    @click="onLeftClick" 
+    aria-label="Desplazarse hacia la izquierda">
+    &larr;
+  </button> -->
+
+  <!-- Accesibilidad: descripción del carrusel de películas
+  -->
+  <div class="custom-carousel" role="region" aria-label="Carrusel de películas">
     <div class="carousel-content">
       <MovieCard
         v-for="(movie, index) in visibleMovies"
         :key="index"
         :poster="movie.poster"
+        :aria-label="`Película: ${movie.title}`"
       />
     </div>
   </div>
+
+  <!-- <button 
+    class="carousel-button right" 
+    @click="onRightClick" 
+    aria-label="Desplazarse hacia la derecha">
+    &rarr;
+  </button> -->
 </template>
 
 <script setup>

@@ -3,24 +3,34 @@
     
     <Header />
     
-    <div class="search-section">
+    <div class="search-section" role="search">
       <div class="title">Verifarma Play</div>
       
       <div class="separator">|</div>
       
+      <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un campo de búsqueda
+      -->
       <q-input
         outlined
         dense
+        tabindex="0"
         placeholder="¿Qué querés ver hoy?"
+        aria-label="Buscar películas o series"
+        role="searchbox"
         class="search-input"
         v-model="searchQuery"
         icon="search"
       />
+
     </div>
 
-    <div v-for="(category, index) in categories" :key="index" >
+    <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un contenedor de películas
+    -->
+    <div v-for="(category, index) in categories" :key="index" :aria-label="'Películas de ' + category.name">
       <div class="category-name">{{ category.name }}</div>
-      <MovieCarousel :movies="category.movies" />
+      <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un carrusel de películas
+      -->
+      <MovieCarousel :movies="category.movies" :aria-label="'Carrusel de películas de ' + category.name" />
     </div>
 
   </q-page>
@@ -71,7 +81,7 @@ function generateMovies(category)
   margin-left: 0.2rem;
   font-size: 1.5rem;
   font-weight: bold;
-  color: white;
+  color: #f0f0f0;
 }
 
 .title {
