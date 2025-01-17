@@ -27,6 +27,7 @@ export const useMoviesStore = defineStore('movies', () => {
   const currentMovie = ref(null);
 
   const fetchCategoryMovies = async (categoryName) => {
+
     const category = categories.value.find((cat) => cat.name === categoryName);
     if (!category) return;
 
@@ -45,6 +46,14 @@ export const useMoviesStore = defineStore('movies', () => {
       isLoading.value = false;
     }
   };  
+
+  // clean categories
+  const cleanCategories = () => {
+    categories.value.forEach((category) => {
+      category.movies = {};
+      category.page = 1;
+    });
+  };
 
   const fetchUserSearchMovies = async () => {
     if (!userSearch.value.query.trim()) return;
@@ -106,6 +115,7 @@ export const useMoviesStore = defineStore('movies', () => {
     type,
     isLoading,
     currentMovie,
+    cleanCategories,
     fetchCategoryMovies,
     fetchUserSearchMovies,
     nextPageCategory,

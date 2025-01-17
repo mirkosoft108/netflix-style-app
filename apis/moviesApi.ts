@@ -4,7 +4,7 @@ export const useMoviesApi = () => {
 
   const listMovies = async (
     searchQuery: string,
-    type: 'movie' | 'series' | 'episode',
+    type: 'movie' | 'series',
     page: number = 1
   ): Promise<any> => {
     try {

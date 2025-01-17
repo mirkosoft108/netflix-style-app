@@ -66,9 +66,25 @@
       </div>
     </div>
 
-    <div v-else class="loading">
+    <div v-else-if="isLoading" class="loading">
       <q-spinner color="primary" size="50px" />
       <p>Cargando datos de la película...</p>
+    </div>
+
+    <div v-else class="loading">
+    
+      <p>No se encontró la película solicitada</p>
+      <p>
+        <q-btn
+          flat
+          dense
+          icon="arrow_back"
+          label="Volver"
+          aria-label="Volver a la página anterior"
+          class="back-btn"
+          @click="goToMovies"
+        />
+      </p>
     </div>
   </q-page>
 </template>
@@ -83,6 +99,9 @@ const moviesStore = useMoviesStore();
 
 const movie = computed(() => moviesStore.currentMovie);
 
+// si está cargando, isLoading
+const isLoading = computed(() => moviesStore.isLoading);
+
 onMounted(() => {
   moviesStore.currentMovie = null;
   const movieId = router.currentRoute.value.params.id;
@@ -91,6 +110,10 @@ onMounted(() => {
 
 const goBack = () => {
   router.back();
+};
+
+const goToMovies = () => {
+  router.push('/movies');
 };
 </script>
 

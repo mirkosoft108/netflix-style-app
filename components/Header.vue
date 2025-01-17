@@ -55,7 +55,7 @@ const isLoggedIn = computed(() => userStore.isAuthenticated);
 const username = computed(() => userStore.currentUser?.name || '');
 
 const goToLogin = () => {
-  router.push('/login');
+  router.push('/');
 };
 
 const logout = () => {

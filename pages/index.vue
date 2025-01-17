@@ -67,15 +67,15 @@
       />
     </div>
 
-    <div v-if="usersStore.errorMessage" class="error-message">
-      {{ usersStore.errorMessage }}
-    </div>
   </q-page>
 </template>
   
 <script setup>
 import { useUsersStore } from '../stores/usersStore';
 import { useRouter } from 'vue-router';
+import { useQuasar } from "quasar";
+
+const $q = useQuasar();
 
 const router = useRouter();
 
@@ -83,29 +83,64 @@ const usersStore = useUsersStore();
 
 const login = async () => {
   if (!usersStore.email || !usersStore.password) {
-    alert('Por favor, completa todos los campos.');
+    $q.notify({
+        message: 'Por favor, completa todos los campos.',
+        color: 'info',
+        position: 'bottom',
+        timeout: 2000,
+    });
     return;
   }
   try {
     await usersStore.login(usersStore.email, usersStore.password);
-    alert(`¡Bienvenido, ${usersStore.currentUser.name}!`);
+    
+    $q.notify({
+        message: `¡Bienvenido, ${usersStore.currentUser.name}!`,
+        color: 'positive',
+        position: 'bottom',
+        timeout: 2000,
+    });
     router.push('/movies');
   } catch (error) {
-    alert('Error al iniciar sesión: ' + usersStore.errorMessage);
+  
+    $q.notify({
+        message: 'Error al iniciar sesión: ' + usersStore.errorMessage,
+        color: 'info',
+        position: 'bottom',
+        timeout: 2000,
+    });
   }
 };
 
 const register = async () => {
   if (!usersStore.name || !usersStore.email || !usersStore.password) {
-    alert('Por favor, completa todos los campos.');
+
+    $q.notify({
+        message: 'Por favor, completa todos los campos.',
+        color: 'info',
+        position: 'bottom',
+        timeout: 2000,
+    });
     return;
   }
   try {
     await usersStore.registerUser(usersStore.name, usersStore.email, usersStore.password);
-    alert(`Cuenta creada con éxito, bienvenido ${usersStore.name}!`);
+  
+    $q.notify({
+        message: `Cuenta creada con éxito, bienvenido ${usersStore.name}!`,
+        color: 'positive',
+        position: 'bottom',
+        timeout: 2000,
+    });
     usersStore.isRegisterMode = false;
   } catch (error) {
-    alert('Error al crear cuenta: ' + usersStore.errorMessage);
+
+    $q.notify({
+        message: 'Error al crear cuenta: ' + usersStore.errorMessage,
+        color: 'info',
+        position: 'bottom',
+        timeout: 2000,
+    });
   }
 };
 </script>
@@ -163,10 +198,5 @@ const register = async () => {
   margin-top: 0.5rem;
 }
 
-.error-message {
-  color: red;
-  font-size: 0.9rem;
-  margin-top: 0.5rem;
-}
 </style>
   

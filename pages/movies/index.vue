@@ -21,6 +21,23 @@
         v-model="searchQuery"
         icon="search"
       />
+
+      <div class="view-options">
+        <q-btn
+          flat
+          push
+          :label="'Películas'"
+          :color="moviesStore.type === 'movie' ? 'white' : 'secondary'"
+          @click="updateType('movie')"
+        />
+        <q-btn
+          flat
+          push
+          :label="'Series'"
+          :color="moviesStore.type === 'series' ? 'white' : 'secondary'"
+          @click="updateType('series')"
+        />
+      </div>
     </div>
 
     <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un contenedor de películas
@@ -102,10 +119,21 @@ const hasNextPage = (category) => {
   return moviesOnCurrentPage.length === 10;
 };
 
-onMounted(() => {
-  categories.value.forEach((category) => {
-    moviesStore.fetchCategoryMovies(category.name);
+const updateType = (type) => {
+  moviesStore.type = type;
+  moviesStore.cleanCategories()
+  loadMovies();
+};
+
+const loadMovies = async () => {  
+  await categories.value.forEach((category) => {
+    moviesStore.fetchCategoryMovies(category.name, moviesStore.type);
   });
+
+};
+
+onMounted(() => {
+  loadMovies();
 });
 </script>
 
