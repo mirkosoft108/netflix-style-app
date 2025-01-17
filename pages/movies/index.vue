@@ -20,6 +20,9 @@
         class="search-input"
         v-model="searchQuery"
         icon="search"
+        @keyup.enter="handleSearch"
+        clearable 
+        @clear="handleClear" 
       />
 
       <div class="view-options">
@@ -29,6 +32,7 @@
           :label="'Películas'"
           :color="moviesStore.type === 'movie' ? 'white' : 'secondary'"
           @click="updateType('movie')"
+          :disable="moviesStore.userSearch.query.trim() !== ''"
         />
         <q-btn
           flat
@@ -36,57 +40,73 @@
           :label="'Series'"
           :color="moviesStore.type === 'series' ? 'white' : 'secondary'"
           @click="updateType('series')"
+          :disable="moviesStore.userSearch.query.trim() !== ''"
         />
       </div>
     </div>
 
-    <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un contenedor de películas
-         y aria label para carrusel -->
-    <div
-      v-for="(category, index) in categories"
-      :key="index"
-      :aria-label="'Películas de ' + category.name"
-      class = "category-container"
-    >
-      <div class="category-header">
-        <div class="category-name">{{ category.name }}</div>
-        <div class="navigation-buttons">
-          <q-btn
-            flat
-            round
-            dense
-            icon="arrow_back"
-            :disable="category.page === 1"
-            aria-label="'Ir a la página anterior de ' + category.name"
-            @click="prevPageCategory(index)"
-            class="nav-btn"
-          />
-          <q-btn
-            flat
-            round
-            dense
-            icon="arrow_forward"
-            aria-label="'Ir a la página siguiente de ' + category.name"
-            @click="nextPageCategory(index)"
-            :disable="!hasNextPage(category)"
-            class="nav-btn"
-          />
+    <div v-if="searchQuery.trim()">
+      <div v-if="!moviesStore.isLoading && moviesStore.userSearch.movies.length > 0">
+        <MovieCarousel 
+          :movies="moviesStore.userSearch.movies"
+          aria-label="Resultados de la búsqueda"
+        />
+      </div>
+      <div v-else-if="!moviesStore.isLoading">
+        <div class="no-results">
+          No hay resultados
         </div>
       </div>
-    <MovieCarousel 
-      :movies="category.movies[category.page]" 
-      :aria-label="'Carrusel de películas de ' + category.name" 
-      v-if="!moviesStore.isLoading"
-    />
-    <div v-else>
-      <q-skeleton
-        class="movie-skeleton"
-        :count="5"
-        :height="'300'"
-      />
-
+      <q-skeleton v-else class="movie-skeleton" :count="5" :height="'300'" />
     </div>
-  </div>
+
+    <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un contenedor de películas
+         y aria label para carrusel -->
+    <div v-else
+        v-for="(category, index) in categories"
+        :key="index"
+        :aria-label="'Películas de ' + category.name"
+        class = "category-container"
+      >
+        <div class="category-header">
+          <div class="category-name">{{ category.name }}</div>
+          <div class="navigation-buttons">
+            <q-btn
+              flat
+              round
+              dense
+              icon="arrow_back"
+              :disable="category.page === 1"
+              aria-label="'Ir a la página anterior de ' + category.name"
+              @click="prevPageCategory(index)"
+              class="nav-btn"
+            />
+            <q-btn
+              flat
+              round
+              dense
+              icon="arrow_forward"
+              aria-label="'Ir a la página siguiente de ' + category.name"
+              @click="nextPageCategory(index)"
+              :disable="!hasNextPage(category)"
+              class="nav-btn"
+            />
+          </div>
+        </div>
+      <MovieCarousel 
+        :movies="category.movies[category.page]" 
+        :aria-label="'Carrusel de películas de ' + category.name" 
+        v-if="!moviesStore.isLoading"
+      />
+      <div v-else>
+        <q-skeleton
+          class="movie-skeleton"
+          :count="5"
+          :height="'300'"
+        />
+
+      </div>
+    </div>
   </q-page>
 </template>
 
@@ -130,6 +150,24 @@ const loadMovies = async () => {
     moviesStore.fetchCategoryMovies(category.name, moviesStore.type);
   });
 
+};
+
+const handleSearch = async () => {
+  if (!searchQuery.value.trim()) {
+    
+    moviesStore.userSearch.movies = [];
+    moviesStore.userSearch.page = 1;
+  } else {
+    
+    await moviesStore.fetchUserSearchMovies();
+  }
+};
+
+const handleClear = () => {
+
+  moviesStore.userSearch.query = '';
+  moviesStore.userSearch.movies = [];
+  moviesStore.userSearch.page = 1;
 };
 
 onMounted(() => {
@@ -211,6 +249,16 @@ onMounted(() => {
 .nav-btn:disabled {
   opacity: 0.5; 
   pointer-events: none; 
+}
+
+.no-results {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+  color: white;
+  font-size: 1.5rem;
+  text-align: center;
 }
 
 @media (max-width: 768px) {
