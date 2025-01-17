@@ -1,36 +1,20 @@
 <template>
   <!-- Accesibilidad: se añade el atributo role="region" con un aria-label para indicar que es un carrusel de películas
-   -->
-  <!-- <button 
-    class="carousel-button left" 
-    @click="onLeftClick" 
-    aria-label="Desplazarse hacia la izquierda">
-    &larr;
-  </button> -->
-
-  <!-- Accesibilidad: descripción del carrusel de películas
-  -->
+   y descripción del carrusel de películas-->
   <div class="custom-carousel" role="region" aria-label="Carrusel de películas">
     <div class="carousel-content">
       <MovieCard
-        v-for="(movie, index) in visibleMovies"
+        v-for="(movie, index) in props.movies"
         :key="index"
-        :poster="movie.poster"
-        :aria-label="`Película: ${movie.title}`"
+        :poster="movie.Poster"
+        :aria-label="`Película: ${movie.Title}`"
+        @click="navigateToMovieDetail(movie.imdbID)"
       />
     </div>
   </div>
-
-  <!-- <button 
-    class="carousel-button right" 
-    @click="onRightClick" 
-    aria-label="Desplazarse hacia la derecha">
-    &rarr;
-  </button> -->
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
 import MovieCard from './MovieCard.vue';
 
 const props = defineProps({
@@ -41,23 +25,10 @@ const props = defineProps({
   },
 });
 
-const currentIndex = ref(0);
-const itemsPerPage = 10;
+const router = useRouter();
 
-const visibleMovies = computed(() => {
-  return props.movies.slice(currentIndex.value, currentIndex.value + itemsPerPage);
-});
-
-const onLeftClick = () => {
-  if (currentIndex.value > 0) {
-    currentIndex.value -= itemsPerPage;
-  }
-};
-
-const onRightClick = () => {
-  if (currentIndex.value + itemsPerPage < props.movies.length) {
-    currentIndex.value += itemsPerPage;
-  }
+const navigateToMovieDetail = (imdbID) => {
+  router.push(`/movies/${imdbID}`);
 };
 </script>
 

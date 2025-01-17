@@ -1,4 +1,5 @@
 <template>
+
   <q-page class="movies-layout">
     
     <Header />
@@ -7,9 +8,8 @@
       <div class="title">Verifarma Play</div>
       
       <div class="separator">|</div>
-      
-      <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un campo de búsqueda
-      -->
+
+      <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un campo de búsqueda -->
       <q-input
         outlined
         dense
@@ -21,44 +21,92 @@
         v-model="searchQuery"
         icon="search"
       />
-
     </div>
 
     <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un contenedor de películas
-    -->
-    <div v-for="(category, index) in categories" :key="index" :aria-label="'Películas de ' + category.name">
-      <div class="category-name">{{ category.name }}</div>
-      <!-- Accesibilidad: se añade el atributo aria-label para indicar que es un carrusel de películas
-      -->
-      <MovieCarousel :movies="category.movies" :aria-label="'Carrusel de películas de ' + category.name" />
-    </div>
+         y aria label para carrusel -->
+    <div
+      v-for="(category, index) in categories"
+      :key="index"
+      :aria-label="'Películas de ' + category.name"
+      class = "category-container"
+    >
+      <div class="category-header">
+        <div class="category-name">{{ category.name }}</div>
+        <div class="navigation-buttons">
+          <q-btn
+            flat
+            round
+            dense
+            icon="arrow_back"
+            :disable="category.page === 1"
+            aria-label="'Ir a la página anterior de ' + category.name"
+            @click="prevPageCategory(index)"
+            class="nav-btn"
+          />
+          <q-btn
+            flat
+            round
+            dense
+            icon="arrow_forward"
+            aria-label="'Ir a la página siguiente de ' + category.name"
+            @click="nextPageCategory(index)"
+            :disable="!hasNextPage(category)"
+            class="nav-btn"
+          />
+        </div>
+      </div>
+    <MovieCarousel 
+      :movies="category.movies[category.page]" 
+      :aria-label="'Carrusel de películas de ' + category.name" 
+      v-if="!moviesStore.isLoading"
+    />
+    <div v-else>
+      <q-skeleton
+        class="movie-skeleton"
+        :count="5"
+        :height="'300'"
+      />
 
+    </div>
+  </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import Header from '~/components/Header.vue';
-import MovieCarousel from '~/components/MovieCarousel.vue';
+import { onMounted, computed } from 'vue';
+import { useMoviesStore } from '../../stores/OMDbStore.js';
 
-const searchQuery = ref('');
-const imageBaseUrl =
-'https://m.media-amazon.com/images/M/MV5BNDU3ZjA1YzktNDUxNy00MDVmLTlhMGQtYjljNjcwMTcwNzZiXkEyXkFqcGc@._V1_SX300.jpg?text=';
+const moviesStore = useMoviesStore();
 
-const categories = ref([
-  { name: 'Comedia', movies: generateMovies('Comedia') },
-  { name: 'Romance', movies: generateMovies('Romance') },
-  { name: 'Drama', movies: generateMovies('Drama') },
-  { name: 'Suspenso', movies: generateMovies('Suspenso') },
-  { name: 'Terror', movies: generateMovies('Terror') },
-]);
+const categories = computed(() => moviesStore.categories);
 
-function generateMovies(category) 
-{
-  return Array.from({ length: 10 }, (_, i) => ({
-      poster: `${imageBaseUrl}${category}+${i + 1}`
-  }));
-}
+const searchQuery = computed({
+  get: () => moviesStore.userSearch.query,
+  set: (value) => (moviesStore.userSearch.query = value),
+});
+
+const prevPageCategory = (index) => {
+  const category = categories.value[index];
+  if (category.page > 1) {
+    moviesStore.prevPageCategory(category.name);
+  }
+};
+
+const nextPageCategory = (index) => {
+  moviesStore.nextPageCategory(categories.value[index].name);
+};
+
+const hasNextPage = (category) => {
+  const moviesOnCurrentPage = category.movies[category.page] || [];
+  return moviesOnCurrentPage.length === 10;
+};
+
+onMounted(() => {
+  categories.value.forEach((category) => {
+    moviesStore.fetchCategoryMovies(category.name);
+  });
+});
 </script>
 
 <style scoped>
@@ -66,6 +114,17 @@ function generateMovies(category)
   padding: 12px;
   background: url('https://images.unsplash.com/photo-1715582080592-7758cbf2fa83?q=80&w=1886&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D') no-repeat center center;
   background-size: cover;
+}
+
+.category-container {
+  margin-bottom: 2rem;
+}
+
+.category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .search-section {
@@ -103,6 +162,29 @@ function generateMovies(category)
   border-radius: 8px;
 }
 
+.navigation-buttons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.nav-btn {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 50%; 
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3); 
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.nav-btn:hover {
+  transform: scale(1.1); 
+  background-color: rgba(255, 255, 255, 1); 
+}
+
+.nav-btn:disabled {
+  opacity: 0.5; 
+  pointer-events: none; 
+}
+
 @media (max-width: 768px) {
   .search-section {
     flex-direction: column;
@@ -112,6 +194,16 @@ function generateMovies(category)
   .separator {
     display: none; 
   }
+
+  .navigation-buttons {
+    justify-content: center;
+    margin-top: 8px; 
+  }
+
+  .nav-btn {
+    width: 40px;
+    height: 40px;
+  }
 }
+
 </style>
-  

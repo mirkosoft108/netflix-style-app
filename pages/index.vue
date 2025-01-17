@@ -10,13 +10,23 @@
         alt="Logo de Verifarma Play" 
       />
       
-      <h1 class="login-title">Bienvenido a Verifarma Play</h1>
+      <h1 class="login-title">{{ usersStore.isRegisterMode ? 'Crear Cuenta en Verifarma Play' : 'Bienvenido a Verifarma Play' }}</h1>
       
+      <q-input 
+        v-if="usersStore.isRegisterMode" 
+        v-model="usersStore.name" 
+        label="Nombre Completo" 
+        aria-label="Nombre Completo" 
+        outlined 
+        dense 
+        class="login-input" 
+      />
+
       <!-- 
       se añade, por cuestiones de accesibilidad, el atributo aria-label al input de correo electrónico
       -->
       <q-input 
-        v-model="email" 
+        v-model="usersStore.email" 
         label="Correo Electrónico" 
         aria-label="Correo Electrónico" 
         outlined 
@@ -27,10 +37,10 @@
         se añade, por cuestiones de accesibilidad, el atributo aria-label al input de contraseña
       -->
       <q-input 
-        v-model="password" 
+        v-model="usersStore.password" 
         label="Contraseña" 
         aria-label="Contraseña" 
-        type="password" 
+        type="password"
         outlined 
         dense 
         class="login-input" 
@@ -38,31 +48,66 @@
       <!--
         se añade, por cuestiones de accesibilidad, el atributo aria-label al botón de iniciar sesión
       -->
-      <q-btn 
-        label="Iniciar Sesión" 
-        aria-label="Botón para iniciar sesión" 
+        <q-btn 
+        :label="usersStore.isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión'" 
+        :aria-label="usersStore.isRegisterMode ? 'Botón para crear cuenta' : 'Botón para iniciar sesión'" 
         color="dark" 
         unelevated 
         class="login-button" 
-        @click="login" 
+        @click="usersStore.isRegisterMode ? register() : login()" 
       />
+
+      <q-btn 
+        flat 
+        :label=" usersStore.isRegisterMode ?  'Ya tienes cuenta? Inicia sesión'  : 'No tienes cuenta? Regístrate' " 
+        aria-label="Botón para alternar entre iniciar sesión y crear cuenta" 
+
+        class="toggle-mode-button" 
+        @click="usersStore.isRegisterMode = !usersStore.isRegisterMode" 
+      />
+    </div>
+
+    <div v-if="usersStore.errorMessage" class="error-message">
+      {{ usersStore.errorMessage }}
     </div>
   </q-page>
 </template>
   
 <script setup>
-  import { ref } from 'vue';
-  
-  const email = ref('');
-  const password = ref('');
-  
-  const login = () => {
-    if (!email.value || !password.value) {
-      alert('Por favor, completa todos los campos.');
-      return;
-    }
-    alert(`¡Bienvenido, ${email.value}!`);
-  };
+import { useUsersStore } from '../stores/usersStore';
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+const usersStore = useUsersStore();
+
+const login = async () => {
+  if (!usersStore.email || !usersStore.password) {
+    alert('Por favor, completa todos los campos.');
+    return;
+  }
+  try {
+    await usersStore.login(usersStore.email, usersStore.password);
+    alert(`¡Bienvenido, ${usersStore.currentUser.name}!`);
+    router.push('/movies');
+  } catch (error) {
+    alert('Error al iniciar sesión: ' + usersStore.errorMessage);
+  }
+};
+
+const register = async () => {
+  if (!usersStore.name || !usersStore.email || !usersStore.password) {
+    alert('Por favor, completa todos los campos.');
+    return;
+  }
+  try {
+    await usersStore.registerUser(usersStore.name, usersStore.email, usersStore.password);
+    alert(`Cuenta creada con éxito, bienvenido ${usersStore.name}!`);
+    usersStore.isRegisterMode = false;
+  } catch (error) {
+    alert('Error al crear cuenta: ' + usersStore.errorMessage);
+  }
+};
 </script>
   
 <style scoped>
@@ -109,6 +154,19 @@
   width: 100%;
   font-size: 1rem;
   font-weight: bold;
+}
+
+.toggle-mode-button {
+  width: 100%;
+  font-size: 0.9rem;
+  color: white;
+  margin-top: 0.5rem;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
 }
 </style>
   

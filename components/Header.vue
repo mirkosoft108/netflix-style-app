@@ -29,16 +29,39 @@
       flat 
       class="header-btn" 
       aria-label="Abrir formulario para ingresar o crear una cuenta" 
+      @click="goToLogin"
+    />
+    <q-btn 
+      v-else 
+      label="Cerrar Sesión" 
+      flat 
+      class="header-btn logout-btn" 
+      aria-label="Cerrar sesión y volver a la página de inicio" 
+      @click="logout"
     />
     
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { useUsersStore } from '../stores/usersStore';
+import { useRouter } from 'vue-router';
+import { computed } from 'vue';
 
-const isLoggedIn = ref(false);
-const username = ref('Juan Pérez');
+const userStore = useUsersStore();
+const router = useRouter();
+
+const isLoggedIn = computed(() => userStore.isAuthenticated);
+const username = computed(() => userStore.currentUser?.name || '');
+
+const goToLogin = () => {
+  router.push('/login');
+};
+
+const logout = () => {
+  userStore.logout();
+  router.push('/');
+};
 </script>
   
 <style scoped>

@@ -5,7 +5,7 @@
 
     <Header />
 
-    <div class="movie-details">
+    <div v-if="movie" class="movie-details">
       
       <!--Accesibilidad: aria-label para identificar el póster de la película
       -->
@@ -29,12 +29,13 @@
         <!--Accesibilidad: role="list" para identificar la lista de calificaciones
         -->
         <div class="movie-ratings">
-          <div 
-            v-for="(rating, index) in movie.Ratings" 
-            :key="index" 
-            class="movie-rating" 
-            :aria-label="`Calificación de ${rating.Source}: ${rating.Value}`" 
-            role="listitem">
+          <div
+            v-for="(rating, index) in movie.Ratings"
+            :key="index"
+            class="movie-rating"
+            :aria-label="`Calificación de ${rating.Source}: ${rating.Value}`"
+            role="listitem"
+          >
             <strong>{{ rating.Source }}:</strong> <span>{{ rating.Value }}</span>
           </div>
         </div>
@@ -64,55 +65,28 @@
 
       </div>
     </div>
+
+    <div v-else class="loading">
+      <q-spinner color="primary" size="50px" />
+      <p>Cargando datos de la película...</p>
+    </div>
   </q-page>
 </template>
 
 <script setup>
-import Header from '~/components/Header.vue';
 import { useRouter } from 'vue-router';
-import { ref, onMounted } from 'vue';
-
-const movie = ref({
-  Title: '',
-  Year: '',
-  Runtime: '',
-  Genre: '',
-  Director: '',
-  Actors: '',
-  Plot: '',
-  Language: '',
-  Released: '',
-  Awards: '',
-  Poster: '',
-  Ratings: [],
-});
-
+import { onMounted, computed } from 'vue';
+import { useMoviesStore } from '../../stores/OMDbStore.js';
 
 const router = useRouter();
+const moviesStore = useMoviesStore();
+
+const movie = computed(() => moviesStore.currentMovie);
 
 onMounted(() => {
-
+  moviesStore.currentMovie = null;
   const movieId = router.currentRoute.value.params.id;
-  console.log(`Cargando datos para la película con ID: ${movieId}`);
-
-  movie.value = {
-    Title: 'Star Wars: Episode V - The Empire Strikes Back',
-    Year: '1980',
-    Runtime: '124 min',
-    Genre: 'Action, Adventure, Fantasy',
-    Director: 'Irvin Kershner',
-    Actors: 'Mark Hamill, Harrison Ford, Carrie Fisher',
-    Plot: 'After the Empire overpowers the Rebel Alliance, Luke Skywalker begins his Jedi training with Yoda. At the same time, Darth Vader and bounty hunter Boba Fett pursue his friends across the galaxy.',
-    Language: 'English',
-    Released: '18 Jun 1980',
-    Awards: 'Won 1 Oscar. 27 wins & 20 nominations total',
-    Poster: 'https://m.media-amazon.com/images/M/MV5BMTkxNGFlNDktZmJkNC00MDdhLTg0MTEtZjZiYWI3MGE5NWIwXkEyXkFqcGc@._V1_SX300.jpg',
-    Ratings: [
-      { Source: 'Internet Movie Database', Value: '8.7/10' },
-      { Source: 'Rotten Tomatoes', Value: '95%' },
-      { Source: 'Metacritic', Value: '82/100' },
-    ],
-  };
+  moviesStore.fetchMovieDetails(movieId);
 });
 
 const goBack = () => {
@@ -188,6 +162,16 @@ const goBack = () => {
   align-self: flex-start;
   background-color: #945efc;
   color: white;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 80vh;
+  text-align: center;
+  gap: 16px;
 }
 
 @media (max-width: 768px) {
