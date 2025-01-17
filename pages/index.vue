@@ -100,7 +100,7 @@ const login = async () => {
         position: 'bottom',
         timeout: 2000,
     });
-    router.push('/movies');
+    router.push('/movies/');
   } catch (error) {
   
     $q.notify({
